@@ -105,6 +105,9 @@ resource "aws_instance" "task-2_ec2" {
     vpc_security_group_ids  = [aws_security_group.web_access.id]
     key_name                = aws_key_pair.ec2_access.key_name
 
+    # User Data Script (Base64 encoded for proper passing)
+    user_data = base64encode(file("install_nginx.sh")) 
+
     tags = {
         Name = "Task-2 EC2 Instance"
     }
