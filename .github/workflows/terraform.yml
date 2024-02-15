@@ -26,6 +26,7 @@ jobs:
            terraform_version: 1.7
 
       - name: Terraform Init
+        working-directory: ./Task-5 
         run: terraform init
 
       - name: Terraform Plan
@@ -33,4 +34,17 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-
+      
+      - name: Email Notification 
+        if: ${{ always() }} # Adjust condition as needed
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com  # Example for Gmail, update accordingly
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: Terraform Deployment Status
+          body: "Deployment status: ${{ job.status }}" # Include any relevant details
+          to: brian.connolly71@gmail.com 
+          from: terraform-notifier@example.com 
+          content_type: text/plain 
