@@ -98,7 +98,7 @@ resource "aws_instance" "task-2_ec2" {
     instance_type           = "t2.micro"
     subnet_id               = aws_subnet.public_a.id
     vpc_security_group_ids  = [aws_security_group.web_access.id]
-    key_name                = data.aws_key_pair.imported_key.key_name
+    key_name                = aws_key_pair.imported_key.key_name
 
     tags = {
         Name = "Task-2 EC2 Instance"
@@ -122,8 +122,10 @@ data "aws_ami" "task2-amazon_linux" {
 }
 
 # The Data source for the key pair from a created keypair on aws
-data "aws_key_pair" "imported_key" {
-  key_name = "Brian-Terraform-local"
+# KeyPair locally
+resource "aws_key_pair" "imported_key" {
+  key_name   = "Brian-terraform-local"
+  public_key = file("~/.ssh/Brian-terraform-local.pub")
 }
 
 # Internet Gateway setup
