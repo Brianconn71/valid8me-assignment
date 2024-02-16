@@ -68,7 +68,7 @@ resource "aws_security_group" "web_access" {
         from_port   =       22
         to_port     =       22
         protocol    =       "tcp"
-        cidr_blocks =       ["0.0.0.0/0"]
+        cidr_blocks =       ["80.233.49.234/32"]
     }
 
     # allow http on port 80
@@ -83,7 +83,7 @@ resource "aws_security_group" "web_access" {
         from_port   =       0
         to_port     =       0
         protocol    =       "-1"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks =       ["0.0.0.0/0"]
     }
 
     tags = {
@@ -91,11 +91,6 @@ resource "aws_security_group" "web_access" {
     }
 }
 
-# New Key Pair
-resource "aws_key_pair" "ec2_access" {
-    key_name = "Brian-Terraform-key_pair"
-    public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUVlldduo4NKa9Qv2WqWR+5kZhLVAu5XiJZEZrr33sHP+OILuoe0DPFuPGnbiEhRmwMzjp6SQ4lGEuXizGD7FUOs+gdPF+Qu8ovZrpujuSzphJa2xHoEyDXgxZeX9LmFHYTtGUenmWVqGPPBr/cY9doqCy14t8c2pWetmPIgI7IGkgnPyoG98tMCRv3DIy+cQc3IhmGqtqA7mKbVt97wpP+QGCQj7zZM3dPantoyAHj9FXeTgV/aFQzVf7pdlctVOi16wqTlJQvpeqYNfUK7EP6LpGP5w6EIqZkOSv1CmhNvY2ZYgDFTuxzvo/NqRup7ZcO78gAOlmWl9LGWedtK+d"
-}
 
 # EC2 Instance
 resource "aws_instance" "task-2_ec2" {
@@ -103,7 +98,7 @@ resource "aws_instance" "task-2_ec2" {
     instance_type           = "t2.micro"
     subnet_id               = aws_subnet.public_a.id
     vpc_security_group_ids  = [aws_security_group.web_access.id]
-    key_name                = aws_key_pair.ec2_access.key_name
+    key_name                = data.aws_key_pair.imported_key.key_name
 
     tags = {
         Name = "Task-2 EC2 Instance"
@@ -124,4 +119,29 @@ data "aws_ami" "task2-amazon_linux" {
     }
     
     owners= ["amazon"]
+}
+
+# The Data source for the key pair from a created keypair on aws
+data "aws_key_pair" "imported_key" {
+  key_name = "Brian-Terraform-local"
+}
+
+# Internet Gateway setup
+resource "aws_internet_gateway" "vpc_igw" {
+    vpc_id = aws_vpc.task-1.id
+}
+
+# Route Table setup
+resource "aws_route_table" "public_route_table" {
+    vpc_id = aws_vpc.task-1.id 
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_internet_gateway.vpc_igw.id
+    }
+} 
+
+# Route Table Association setup
+resource "aws_route_table_association" "public_subnet_a_assoc" {
+    subnet_id      = aws_subnet.public_a.id
+    route_table_id = aws_route_table.public_route_table.id
 }
