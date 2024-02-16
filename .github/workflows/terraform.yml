@@ -54,4 +54,23 @@ jobs:
           body: "Deployment status: ${{ job.status }}" # Include any relevant details
           to: brian.connolly71@gmail.com 
           from: terraform-notifier@example.com 
-          content_type: text/plain 
+          content_type: text/plain
+  
+  request-destroy-approval: 
+    name: Request Destroy Approval
+    runs-on: ubuntu-latest
+    if: ${{ always() && github.ref == 'refs/heads/main' }} 
+    steps:
+      - name: Request Destroy
+        id: destroy_approval
+        uses: aws-actions/aws-manual-approval@v1
+
+  terraform_destroy:
+    name: Terraform Destroy
+    runs-on: ubuntu-latest
+    needs: request-destroy-approval
+    if: ${{ needs.request-destroy-approval.outputs.approved == 'true' }}
+    steps:
+      - name: Terraform Destroy
+        working-directory: ./Task-5
+        run: terraform destroy -auto-approve 
