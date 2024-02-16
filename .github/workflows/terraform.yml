@@ -42,7 +42,7 @@ jobs:
         run: terraform apply -auto-approve
       
       - name: Email Notification 
-        if: ${{ always() }} # Adjust condition as needed
+        if: ${{ always() }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -50,26 +50,7 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: Terraform Deployment Status
-          body: "Deployment status: ${{ job.status }}" # Include any relevant details
+          body: "Deployment status: ${{ job.status }}"
           to: brian.connolly71@gmail.com 
           from: terraform-notifier@example.com 
           content_type: text/plain
-  
-  request-destroy-approval: 
-    name: Request Destroy Approval
-    runs-on: ubuntu-latest
-    if: ${{ always() && github.ref == 'refs/heads/main' }} 
-    steps:
-      - name: Request Destroy
-        id: destroy_approval
-        uses: aws-actions/aws-manual-approval@v1
-
-  terraform_destroy:
-    name: Terraform Destroy
-    runs-on: ubuntu-latest
-    needs: request-destroy-approval
-    if: ${{ needs.request-destroy-approval.outputs.approved == 'true' }}
-    steps:
-      - name: Terraform Destroy
-        working-directory: ./Task-5
-        run: terraform destroy -auto-approve 
