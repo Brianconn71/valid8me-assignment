@@ -92,7 +92,7 @@ resource "aws_security_group" "web_access" {
 }
 
 # New Key Pair
-resource "aws_key_pair" "ec2_access" {
+resource "aws_key_pair" "imported_key" {
     key_name = "Brian-Terraform-key_pair"
     public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUVlldduo4NKa9Qv2WqWR+5kZhLVAu5XiJZEZrr33sHP+OILuoe0DPFuPGnbiEhRmwMzjp6SQ4lGEuXizGD7FUOs+gdPF+Qu8ovZrpujuSzphJa2xHoEyDXgxZeX9LmFHYTtGUenmWVqGPPBr/cY9doqCy14t8c2pWetmPIgI7IGkgnPyoG98tMCRv3DIy+cQc3IhmGqtqA7mKbVt97wpP+QGCQj7zZM3dPantoyAHj9FXeTgV/aFQzVf7pdlctVOi16wqTlJQvpeqYNfUK7EP6LpGP5w6EIqZkOSv1CmhNvY2ZYgDFTuxzvo/NqRup7ZcO78gAOlmWl9LGWedtK+d"
 }
