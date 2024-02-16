@@ -126,7 +126,7 @@ data "aws_ami" "task2-amazon_linux" {
 
 resource "aws_key_pair" "imported_key" {
     key_name = "Brian-Terraform-local"
-    public_key = file("~/.ssh/id_rsa.pub")
+    public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDZ"
 }
 
 import {
