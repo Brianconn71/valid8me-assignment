@@ -30,6 +30,9 @@ jobs:
         working-directory: ./Task-5
         run: terraform init
 
+      - name: Generate SSH Key
+        run: ssh-keygen -t rsa -b 2048 -f ~/.ssh/Brian-terraform-key 
+
       - name: Terraform Plan
         working-directory: ./Task-5
         run: terraform plan
