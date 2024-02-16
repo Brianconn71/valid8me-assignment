@@ -1,2 +1,6 @@
-.env
 Terraform-considerations.txt
+Task-*/.terraform
+Task-*/.terraform.*
+
+Task-*/*.tfstate
+Task-*/*.tfstate.*
