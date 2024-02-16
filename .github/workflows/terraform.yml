@@ -42,7 +42,7 @@ jobs:
         run: terraform apply -auto-approve
       
       - name: Email Notification 
-        if: ${{ always() }} # Adjust condition as needed
+        if: ${{ always() }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -50,7 +50,7 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: Terraform Deployment Status
-          body: "Deployment status: ${{ job.status }}" # Include any relevant details
+          body: "Deployment status: ${{ job.status }}"
           to: brian.connolly71@gmail.com 
           from: terraform-notifier@example.com 
           content_type: text/plain
@@ -60,9 +60,25 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ always() && github.ref == 'refs/heads/main' }} 
     steps:
-      - name: Request Destroy
-        id: destroy_approval
-        uses: aws-actions/aws-manual-approval@v1
+      - name: Send Approval Request Email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: Terraform Destroy Approval Required
+          body: | 
+            A Terraform Plan has been generated for destructive changes.
+
+            Review the proposed plan carefully.
+
+            * To Approve:  Click here [Insert Approval Link]
+            * To Reject: Click here [Insert Rejection Link] 
+
+          to: brian.connolly71@gmail.com 
+          from: terraform-notifier@example.com 
+          content_type: text/plain 
 
   terraform_destroy:
     name: Terraform Destroy
