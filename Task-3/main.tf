@@ -7,16 +7,16 @@ provider "aws"{
 }
 
 # VPC Configuration
-resource "aws_vpc" "task-1"{
+resource "aws_vpc" "task-3"{
     cidr_block = "10.0.0.0/16"
     tags = {
-        Name = "Task-1 VPC"
+        Name = "Task-3 VPC"
     }
 }
 
 # Public Subnet A
 resource "aws_subnet" "public_a"{
-    vpc_id = aws_vpc.task-1.id
+    vpc_id = aws_vpc.task-3.id
     cidr_block = "10.0.1.0/24"
     availability_zone = "eu-west-1a"
     map_public_ip_on_launch = true
@@ -27,7 +27,7 @@ resource "aws_subnet" "public_a"{
 
 # Public Subnet B
 resource "aws_subnet" "public_b"{
-    vpc_id = aws_vpc.task-1.id
+    vpc_id = aws_vpc.task-3.id
     cidr_block = "10.0.2.0/24"
     availability_zone = "eu-west-1b"
     map_public_ip_on_launch = true
@@ -38,7 +38,7 @@ resource "aws_subnet" "public_b"{
 
 # Private Subnet A
 resource "aws_subnet" "private_a"{
-    vpc_id = aws_vpc.task-1.id
+    vpc_id = aws_vpc.task-3.id
     cidr_block = "10.0.3.0/24"
     availability_zone = "eu-west-1a"
     map_public_ip_on_launch = false
@@ -49,7 +49,7 @@ resource "aws_subnet" "private_a"{
 
 # Private Subnet B
 resource "aws_subnet" "private_b"{
-    vpc_id = aws_vpc.task-1.id
+    vpc_id = aws_vpc.task-3.id
     cidr_block = "10.0.4.0/24"
     availability_zone = "eu-west-1b"
     map_public_ip_on_launch = false
@@ -61,14 +61,14 @@ resource "aws_subnet" "private_b"{
 # Security Group
 resource "aws_security_group" "web_access" {
     name = "allow_web_and_ssh"
-    vpc_id = aws_vpc.task-1.id
+    vpc_id = aws_vpc.task-3.id
 
     # allow SSH on port 22
     ingress {
         from_port   =       22
         to_port     =       22
         protocol    =       "tcp"
-        cidr_blocks =       ["0.0.0.0/0"]
+        cidr_blocks =       ["84.21.169.116/32"]
     }
 
     # allow http on port 80
@@ -83,7 +83,7 @@ resource "aws_security_group" "web_access" {
         from_port   =       0
         to_port     =       0
         protocol    =       "-1"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks =       ["0.0.0.0/0"]
     }
 
     tags = {
@@ -91,25 +91,20 @@ resource "aws_security_group" "web_access" {
     }
 }
 
-# New Key Pair
-resource "aws_key_pair" "ec2_access" {
-    key_name = "Brian-Terraform-key_pair"
-    public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUVlldduo4NKa9Qv2WqWR+5kZhLVAu5XiJZEZrr33sHP+OILuoe0DPFuPGnbiEhRmwMzjp6SQ4lGEuXizGD7FUOs+gdPF+Qu8ovZrpujuSzphJa2xHoEyDXgxZeX9LmFHYTtGUenmWVqGPPBr/cY9doqCy14t8c2pWetmPIgI7IGkgnPyoG98tMCRv3DIy+cQc3IhmGqtqA7mKbVt97wpP+QGCQj7zZM3dPantoyAHj9FXeTgV/aFQzVf7pdlctVOi16wqTlJQvpeqYNfUK7EP6LpGP5w6EIqZkOSv1CmhNvY2ZYgDFTuxzvo/NqRup7ZcO78gAOlmWl9LGWedtK+d"
-}
 
 # EC2 Instance
-resource "aws_instance" "task-2_ec2" {
+resource "aws_instance" "task-3_ec2" {
     ami                     = data.aws_ami.task2-amazon_linux.id
     instance_type           = "t2.micro"
     subnet_id               = aws_subnet.public_a.id
     vpc_security_group_ids  = [aws_security_group.web_access.id]
-    key_name                = aws_key_pair.ec2_access.key_name
+    key_name                = data.aws_key_pair.imported_key.key_name
 
-    # User Data Script (Base64 encoded for proper passing)
+    # User Data Script
     user_data = base64encode(file("install_nginx.sh")) 
 
     tags = {
-        Name = "Task-2 EC2 Instance"
+        Name = "Task-3 EC2 Instance"
     }
 }
 
@@ -127,4 +122,29 @@ data "aws_ami" "task2-amazon_linux" {
     }
     
     owners= ["amazon"]
+}
+
+# The Data source for the key pair from a created keypair on aws
+data "aws_key_pair" "imported_key" {
+  key_name = "Brian-Terraform-local"
+}
+
+# Internet Gateway setup
+resource "aws_internet_gateway" "vpc_igw" {
+    vpc_id = aws_vpc.task-3.id
+}
+
+# Route Table setup
+resource "aws_route_table" "public_route_table" {
+    vpc_id = aws_vpc.task-3.id 
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_internet_gateway.vpc_igw.id
+    }
+} 
+
+# Route Table Association setup
+resource "aws_route_table_association" "public_subnet_a_assoc" {
+    subnet_id      = aws_subnet.public_a.id
+    route_table_id = aws_route_table.public_route_table.id
 }
