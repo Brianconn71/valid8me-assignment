@@ -98,7 +98,7 @@ resource "aws_instance" "task-5_ec2" {
     instance_type           = "t2.micro"
     subnet_id               = aws_subnet.public_a.id
     vpc_security_group_ids  = [aws_security_group.web_access.id]
-    key_name                = aws_key_pair.imported_key.key_name
+    key_name                = data.aws_key_pair.imported_key.key_name
 
     # User Data Script
     user_data = base64encode(file("install_nginx.sh")) 
