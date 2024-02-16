@@ -124,14 +124,9 @@ data "aws_ami" "task2-amazon_linux" {
     owners= ["amazon"]
 }
 
-resource "aws_key_pair" "imported_key" {
-    key_name = "Brian-Terraform-local"
-    public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDZ"
-}
-
-import {
-  to = aws_key_pair.imported_key
-  id = "Brian-Terraform-local"
+resource "aws_key_pair" "new_key" {
+  key_name   = "Brian-terraform-key"
+  public_key = file("~/.ssh/Brian-terraform-key.pub")
 }
 
 # Internet Gateway setup
