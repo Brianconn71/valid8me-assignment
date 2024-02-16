@@ -19,36 +19,39 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}  
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          TEST_VAR: "justTesting"
 
       - name: Setup Terraform 
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.7
-      
-      - name: Print AWS Credentials (debugging)
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}  
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          TEST_VAR: "justTesting"
-        run: |
-          echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
-          echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY" 
-          echo "AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION"
-          echo "TEST_VAR: $TEST_VAR"
                
 
       - name: Terraform Init
+        working-directory: ./Task-5
         run: terraform init
 
       - name: Terraform Plan
+        working-directory: ./Task-5
         run: terraform plan 
 
+      - name: Terraform import
+        working-directory: ./Task-5
+        run: terraform import aws_key_pair.imported_key Brian-Terraform-key_pair
+
       - name: Terraform Apply
+        working-directory: ./Task-5
         run: terraform apply -auto-approve
+      
+      - name: Email Notification 
+        if: ${{ always() }} # Adjust condition as needed
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: Terraform Deployment Status
+          body: "Deployment status: ${{ job.status }}" # Include any relevant details
+          to: brian.connolly71@gmail.com 
+          from: terraform-notifier@example.com 
+          content_type: text/plain 
