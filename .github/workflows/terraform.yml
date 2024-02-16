@@ -32,11 +32,7 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ./Task-5
-        run: terraform plan 
-
-      - name: Terraform import
-        working-directory: ./Task-5
-        run: terraform import aws_key_pair.imported_key Brian-Terraform-local
+        run: terraform plan
 
       - name: Terraform Apply
         working-directory: ./Task-5
