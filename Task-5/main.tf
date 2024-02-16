@@ -124,9 +124,14 @@ data "aws_ami" "task2-amazon_linux" {
     owners= ["amazon"]
 }
 
-# The Data source for the key pair from a created keypair on aws
-data "aws_key_pair" "imported_key" {
-  key_name = "Brian-Terraform-local"
+resource "aws_key_pair" "imported_key" {
+    key_name = "Brian-Terraform-local"
+    public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDZ"
+}
+
+import {
+  to = aws_key_pair.imported_key
+  id = "Brian-Terraform-local"
 }
 
 # Internet Gateway setup
