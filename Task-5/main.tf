@@ -129,6 +129,11 @@ data "aws_key_pair" "imported_key" {
   key_name = "Brian-Terraform-local"
 }
 
+import {
+  to = aws_key_pair.imported_key
+  id = "Brian-Terraform-local"
+}
+
 # Internet Gateway setup
 resource "aws_internet_gateway" "vpc_igw" {
     vpc_id = aws_vpc.task-5.id
