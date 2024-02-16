@@ -29,10 +29,6 @@ jobs:
       - name: Terraform Init
         working-directory: ./Task-5
         run: terraform init
-      
-      - name: Terraform Generate Config
-        working-directory: ./Task-5
-        run: terraform plan -generate-config-out=generated.tf
 
       - name: Terraform Plan
         working-directory: ./Task-5
