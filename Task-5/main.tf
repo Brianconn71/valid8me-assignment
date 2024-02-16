@@ -132,3 +132,8 @@ data "aws_ami" "task2-amazon_linux" {
 data "aws_key_pair" "imported_key" {
   key_name = "Brian-Terraform-key_pair"  // Exact name within AWS
 }
+
+import {
+  to = aws_key_pair.imported_key
+  id = "Brian-Terraform-key_pair"
+}
