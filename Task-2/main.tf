@@ -68,7 +68,7 @@ resource "aws_security_group" "web_access" {
         from_port   =       22
         to_port     =       22
         protocol    =       "tcp"
-        cidr_blocks =       ["80.233.49.234/32"]
+        cidr_blocks =       ["80.233.62.229/32"]
     }
 
     # allow http on port 80
