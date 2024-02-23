@@ -68,7 +68,7 @@ resource "aws_security_group" "web_access" {
         from_port   =       22
         to_port     =       22
         protocol    =       "tcp"
-        cidr_blocks =       ["84.21.169.116/32"]
+        cidr_blocks =       ["84.21.168.46/32"]
     }
 
     # allow http on port 80
@@ -98,7 +98,7 @@ resource "aws_instance" "task-4_ec2" {
     instance_type           = "t2.micro"
     subnet_id               = aws_subnet.public_a.id
     vpc_security_group_ids  = [aws_security_group.web_access.id]
-    key_name                = aws_key_pair.imported_key.key_name
+    key_name                = data.aws_key_pair.imported_key.key_name
 
     # User Data Script
     user_data = base64encode(file("install_nginx.sh")) 
@@ -124,10 +124,9 @@ data "aws_ami" "task2-amazon_linux" {
     owners= ["amazon"]
 }
 
-# KeyPair locally
-resource "aws_key_pair" "imported_key" {
-  key_name   = "Brian-terraform-local"
-  public_key = file("~/.ssh/Brian-terraform-local.pub")
+# The Data source for the key pair from a created keypair on aws
+data "aws_key_pair" "imported_key" {
+  key_name = "Brian-Terraform-local"
 }
 
 # Internet Gateway setup
